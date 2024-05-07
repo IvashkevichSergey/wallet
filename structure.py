@@ -5,6 +5,8 @@ WALLET_FILE = "wallet.json"
 
 
 class WalletRecord:
+    """Класс для создания/редактирования отдельных записей"""
+
     def __init__(self, date: str, category: str, amount: str, description: str):
         self.date = date
         self.category = category
@@ -26,6 +28,8 @@ class WalletRecord:
 
 
 class WalletManagement:
+    """Основной класс для управления функционалом кошелька"""
+
     def __init__(self):
         """При инициализации экземпляра класса данные из файла
         'WALLET_FILE' считываются в переменную 'wallet_content'"""
@@ -83,7 +87,39 @@ class WalletManagement:
 
         print("Запись успешно отредактирована.")
 
+    def show_balance(self):
+        """Метод для вывода баланса, суммы доходов и суммы расходов"""
+
+        income = sum(record['Сумма'] for record in self.wallet_content if record['Категория'] == 'Доход')
+        expense = sum(record['Сумма'] for record in self.wallet_content if record['Категория'] == 'Расход')
+        balance = income - expense
+
+        print(f"Баланс: {balance:.2f}")
+        print(f"Доходы: {income:.2f}")
+        print(f"Расходы: {expense:.2f}")
+
+    def search_records(self):
+        """Метод для поиска записей в файле по ключевому слову"""
+
+        query = input("Введите категорию, дату или сумму для поиска: ")
+
+        matching_records = [record for record in self.wallet_content if
+                            query.lower() in str(record.values()).lower()]
+
+        if matching_records:
+            print("Найденные записи:")
+            for record in matching_records:
+                print(record)
+        else:
+            print("Записи не найдены.")
+
+    def show_records(self):
+        """Метод для вывода записей из файла"""
+        for record in self.wallet_content:
+            print(record)
+
     def get_date(self):
+        """Метод для проверки формата вводимой пользователем даты"""
         date = input("Введите дату (в формате ГГГГ-ММ-ДД): ")
         try:
             datetime.strptime(date, "%Y-%m-%d")
@@ -101,11 +137,10 @@ class WalletManagement:
         return category.capitalize()
 
     def get_amount(self):
+        """Метод для проверки вводимой пользователем суммы"""
         amount = input("Введите сумму: ")
         try:
             return float(amount)
         except ValueError:
             print(f"'{amount}' не является числом")
             return self.get_amount()
-
-
